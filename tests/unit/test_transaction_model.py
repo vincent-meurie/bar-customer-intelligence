@@ -91,7 +91,7 @@ class TestTransactionModel:
 
     def test_transaction_invalid_payment_method(self):
         """Test transaction with invalid payment_method raises error."""
-        with pytest.raises(ValueError, match="Payment method is invalid"):
+        with pytest.raises(ValueError, match="Invalid payment method"):
             Transaction(
                 transaction_id="TXN006",
                 customer_id="CUST001",
