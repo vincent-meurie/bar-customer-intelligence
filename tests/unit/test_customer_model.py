@@ -24,7 +24,8 @@ class TestCustomerModel:
 
     def test_customer_age_calculation(self):
         """Test age calculation from date of birth."""
-        dob = datetime.now() - timedelta(days=365 * 30) # 30 years ago
+        today = datetime.now()
+        dob = today.replace(year=today.year - 30) # 30 years ago
         customer = Customer(
             customer_id="CUST002",
             first_name="Jane",
@@ -33,6 +34,20 @@ class TestCustomerModel:
         )
 
         assert customer.age == 30
+
+    def test_customer_age_before_birthday_this_year(self):
+        """Test age calculation when birthday hasn't occurred yet this year."""
+        today = datetime.now()
+        dob = today.replace(year=today.year - 30, day=today.day + 1) if today.day < 28 else today.replace(year=today.year - 30, month=today.month + 1, day=1)
+
+        customer = Customer(
+            customer_id="CUST002B",
+            first_name="Jane",
+            last_name="Smith",
+            date_of_birth=dob,
+        )
+
+        assert customer.age == 29
 
     def test_customer_without_dob(self):
         """Test customer without date of birth."""
