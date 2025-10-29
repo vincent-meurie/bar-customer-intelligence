@@ -146,3 +146,32 @@ class TestTransactionModel:
 
         assert "TXN009" in repr(transaction)
         assert "CUST001" in repr(transaction)
+
+    def test_transaction_final_amount_with_discount(self):
+        """Test transaction final amount calculation with discount."""
+        transaction = Transaction(
+            transaction_id="TXN010",
+            customer_id="CUST001",
+            transaction_date=datetime.now(),
+            items=[
+                {"name": "Beer", "quantity": 5, "unit_price": Decimal("6.00")},
+            ],
+            payment_method="card",
+            tip_amount=Decimal("5.00"),
+            discount_amount=Decimal("3.00"),
+        )
+
+        assert transaction.final_amount == Decimal("32.00")
+
+    def test_transaction_with_notes(self):
+        """Test transaction with notes field."""
+        transaction = Transaction(
+            transaction_id="TXN011",
+            customer_id="CUST001",
+            transaction_date=datetime.now(),
+            items=[{"name": "Beer", "quantity": 1, "unit_price": Decimal("6.00")}],
+            payment_method="cash",
+            notes="Customer required extra lime",
+        )
+
+        assert transaction.notes == "Customer required extra lime"

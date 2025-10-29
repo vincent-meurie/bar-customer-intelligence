@@ -73,3 +73,32 @@ class TestCustomerModel:
         """Test customer without ID raises error."""
         with pytest.raises(ValueError, match="customer_id is required"):
             Customer(first_name="No", last_name="ID")
+
+    def test_customer_default_registration_date(self):
+        """Test default registration date of customer."""
+        before = datetime.now()
+        customer = Customer(
+            customer_id="CUST010",
+            first_name="Auto",
+            last_name="Date",
+        )
+        after = datetime.now()
+
+        assert before <= customer.registration_date <= after
+
+    def test_customer_with_all_optional_fields_none(self):
+        """Test customer with minimal required fields."""
+        customer = Customer(
+            customer_id="CUST011",
+            first_name="Minimal",
+            last_name="Fields",
+        )
+
+        assert customer.email is None
+        assert customer.phone is None
+        assert customer.date_of_birth is None
+        assert customer.address is None
+        assert customer.city is None
+        assert customer.country is None
+        assert customer.preferred_contact == "email" # default
+        assert customer.marketing_opt_in is False

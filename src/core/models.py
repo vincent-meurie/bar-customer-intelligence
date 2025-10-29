@@ -120,6 +120,11 @@ class Transaction:
         return self.total_amount + self.tip_amount
 
     @property
+    def final_amount(self) -> Decimal:
+        """Calculate final amount after tip and discount."""
+        return self.total_amount + self.tip_amount - self.discount_amount
+
+    @property
     def item_count(self) -> int:
         """Calculate total number of items (sum of quantities)."""
         return sum(item.get("quantity", 0) for item in self.items)

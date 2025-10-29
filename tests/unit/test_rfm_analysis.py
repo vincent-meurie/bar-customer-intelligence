@@ -43,10 +43,10 @@ class TestRFMScore:
         """Test loyal customer segment."""
         score = RFMScore(
             customer_id="CUST002",
-            recency=10,
+            recency=30,
             frequency=80,
             monetary=Decimal("1200.00"),
-            r_score=4,
+            r_score=3,
             f_score=5,
             m_score=4,
         )
@@ -57,11 +57,11 @@ class TestRFMScore:
         """Test at-risk segment identification."""
         score = RFMScore(
             customer_id="CUST003",
-            rceency=90,
+            recency=90,
             frequency=50,
             monetary=Decimal("800.00"),
             r_score=2,
-            f_score=4,
+            f_score=3,
             m_score=3,
         )
 
@@ -143,3 +143,36 @@ class TestRFMAnalyzer:
         assert all(hasattr(score, 'f_score') for score in scores)
         assert all(hasattr(score, 'm_score') for score in scores)
 
+    def test_get_segment_summary(self):
+        """Test segment summary calculation."""
+        analyzer = RFMAnalyzer()
+
+        transactions = [
+            # Champions
+            {"customer_id": "CUST001", "transaction_date": datetime.now() - timedelta(days=2), "total_amount": Decimal("500.00")},
+            {"customer_id": "CUST001", "transaction_date": datetime.now() - timedelta(days=10), "total_amount": Decimal("600.00")},
+            {"customer_id": "CUST001", "transaction_date": datetime.now() - timedelta(days=20), "total_amount": Decimal("550.00")},
+
+            # Lost customer
+            {"customer_id": "CUST002", "transaction_date": datetime.now() - timedelta(days=200), "total_amount": Decimal("50.00")},
+
+            # Another champion
+            {"customer_id": "CUST003", "transaction_date": datetime.now() - timedelta(days=3), "total_amount": Decimal("700.00")},
+            {"customer_id": "CUST003", "transaction_date": datetime.now() - timedelta(days=12), "total_amount": Decimal("650.00")},
+            {"customer_id": "CUST003", "transaction_date": datetime.now() - timedelta(days=18), "total_amount": Decimal("680.00")},
+        ]
+
+        scores = analyzer.calculate_rfm_scores(transactions)
+        summary = analyzer.get_segment_summary(scores)
+
+        assert summary is not None
+        assert isinstance(summary, dict)
+        assert len(summary) > 0
+
+        # Check that segments have required fields
+        for segment, stats in summary.items():
+            assert 'count' in stats
+            assert 'avg_recency' in stats
+            assert 'avg_frequency' in stats
+            assert 'avg_monetary' in stats
+            assert 'total_monetary' in stats
